@@ -1,0 +1,15 @@
+OS := $(shell uname -s)
+
+ifneq "$(DYLIB_NAME)" ""
+  ifeq "$(OS)" "Darwin"
+  	DYLIB_FILENAME = lib$(DYLIB_NAME).dylib
+	SOEXT = .dylib
+  else
+  	DYLIB_FILENAME = lib$(DYLIB_NAME).so
+	SOEXT = .so
+  endif
+  ARCH_FILENAME = lib$(DYLIB_NAME).a
+endif
+
+
+
