@@ -30,36 +30,36 @@
 #define set_rec_it(p,rec_it) p->second.first = rec_it
 #define set_pw_it(p,pw_it) p->second.second = pw_it
 
-	int total_trace_size = 0;
+int total_trace_size = 0;
 
 
-	std::atomic<int> prof_th;
+std::atomic<int> prof_th;
 
-	bool DEBUG;
-	int sampleRateLog;
-	uint32_t sampleSize;
-	uint32_t sampleMask;
-
-
-	std::ofstream debug_os;
+bool DEBUG;
+int sampleRateLog;
+uint32_t sampleSize;
+uint32_t sampleMask;
 
 
-	func_t * func_count;
-	std::string* object_hash_map;
-	FuncNameMap * func_names;
-	BBCountMap * bb_count;
-	BBSizeMap * bb_size;
-	CSSizeMap * cs_size;
-	UCFGMap * ucfg;
-	BBCFGMap * bb_cfg;
-	BBReturnMap * bb_return;
-
-  unsigned short prof_time=0;
+std::ofstream debug_os;
 
 
+func_t * func_count;
+std::string* object_hash_map;
+FuncNameMap * func_names;
+BBCountMap * bb_count;
+BBSizeMap * bb_size;
+CSSizeMap * cs_size;
+UCFGMap * ucfg;
+BBCFGMap * bb_cfg;
+BBReturnMap * bb_return;
+
+unsigned short prof_time=0;
 
 
-	pthread_mutex_t flush_mutex =  PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
+
+
+pthread_mutex_t flush_mutex =  PTHREAD_ERRORCHECK_MUTEX_INITIALIZER_NP;
 
 
 
@@ -67,12 +67,12 @@
 
 class BBProfiler {
 	public:
-				BBlock pred;
+		BBlock pred;
 		bool pred_valid;
 		bool locked = false;
 		bool destroying = false;
 
-    Vector<FallThroughMap> fall_thrus;
+		Vector<FallThroughMap> fall_thrus;
 		Vector<CallCountMap> calls;
 		Vector<BBExecCountMap> bb_exec_count;
 		Vector<SimpleJointFreqMap> joint_freqs;
@@ -80,10 +80,10 @@ class BBProfiler {
 		Vector<UCFGMap> local_ucfg;
 
 
-    std::unordered_map <BBlock, std::pair< list<BBlock>::iterator,list<PartialWindow>::iterator>> trace_map;
-    std::unordered_map <BBlock, list<PartialWindow>::iterator> window_map;
+		std::unordered_map <BBlock, std::pair< list<BBlock>::iterator,list<PartialWindow>::iterator>> trace_map;
+		std::unordered_map <BBlock, list<PartialWindow>::iterator> window_map;
 
-    list<PartialWindow> trace_list;
+		list<PartialWindow> trace_list;
 
 		unsigned trace_code_size;
 		unsigned total_trace_size;
@@ -93,21 +93,21 @@ class BBProfiler {
 			std::filebuf graph_buf;
 			graph_buf.open (get_thread_versioned_filepath("graph"),std::ios::out);
 
-	OutputStream graph_os(&graph_buf);
-	serialize(getMap(bb_exec_count,maps_initialized),graph_os);
-	serialize(getMap(fall_thrus,maps_initialized),graph_os);
-	serialize(getMap(calls,maps_initialized),graph_os);
-}
+			OutputStream graph_os(&graph_buf);
+			serialize(getMap(bb_exec_count,maps_initialized),graph_os);
+			serialize(getMap(fall_thrus,maps_initialized),graph_os);
+			serialize(getMap(calls,maps_initialized),graph_os);
+		}
 
- void emit_joint_freqs(){
-	if(!do_affinity)
-		return;
-	std::filebuf graph_buf;
-	graph_buf.open (get_timestamped_filepath("joint-freqs"),std::ios::out);
-	OutputStream graph_os(&graph_buf);
-	serialize(getMap(joint_freqs,maps_initialized),graph_os);
+		void emit_joint_freqs(){
+			if(!do_affinity)
+				return;
+			std::filebuf graph_buf;
+			graph_buf.open (get_timestamped_filepath("joint-freqs"),std::ios::out);
+			OutputStream graph_os(&graph_buf);
+			serialize(getMap(joint_freqs,maps_initialized),graph_os);
 
-}
+		}
 
 
 
@@ -127,7 +127,7 @@ class BBProfiler {
 						res.first->second++;
 					else
 						total_trace_size++;
-					
+
 				}
 
 				pw_it++;
@@ -160,7 +160,7 @@ class BBProfiler {
 
 		}
 
-		 void record_bb_exec(BBlock rec){
+		void record_bb_exec(BBlock rec){
 
 			bool sampled=((rand() & sampleMask)==0);
 
@@ -256,7 +256,7 @@ class BBProfiler {
 		~BBProfiler(){
 			destroying = true;
 			locked = true;
-			
+
 			for(unsigned obj_id=0; obj_id<HASH_MAX; obj_id++)
 				if(!maps_initialized[obj_id].empty()){
 					auto& _maps_init = maps_initialized[obj_id];
@@ -281,8 +281,8 @@ class BBProfiler {
 
 
 
-				pred_valid = false;
-				locked = false;
+			pred_valid = false;
+			locked = false;
 		}
 
 
@@ -294,32 +294,32 @@ class BBProfiler {
 				if(read_metadata[obj_id]==true){
 					auto fcount = func_count[obj_id];
 					//assert(fcount!=0 && "fcount==0");
-						cerr << "first initialization for obj_id: " << obj_id << "\t: size:" << fcount << "\t from tid: "<< _gettid() << "\n";
-						auto& _exec_count = bb_exec_count[obj_id];
-						_exec_count.resize(fcount);
-						_exec_count.shrink_to_fit();
-						auto& _fall_thrus = fall_thrus[obj_id];
-						_fall_thrus.resize(fcount);
-						_fall_thrus.shrink_to_fit();
-						auto& _calls = calls[obj_id];
-						_calls.resize(fcount);
-						_calls.shrink_to_fit();
-						if(do_affinity){
-							//joint_freqs[obj_id].resize(fcount);
-							//joint_freqs[obj_id].shrink_to_fit();
-							//local_bb_size[obj_id].resize(fcount);
-							//local_bb_size[obj_id].shrink_to_fit();
-						}
+					cerr << "first initialization for obj_id: " << obj_id << "\t: size:" << fcount << "\t from tid: "<< _gettid() << "\n";
+					auto& _exec_count = bb_exec_count[obj_id];
+					_exec_count.resize(fcount);
+					_exec_count.shrink_to_fit();
+					auto& _fall_thrus = fall_thrus[obj_id];
+					_fall_thrus.resize(fcount);
+					_fall_thrus.shrink_to_fit();
+					auto& _calls = calls[obj_id];
+					_calls.resize(fcount);
+					_calls.shrink_to_fit();
+					if(do_affinity){
+						//joint_freqs[obj_id].resize(fcount);
+						//joint_freqs[obj_id].shrink_to_fit();
+						//local_bb_size[obj_id].resize(fcount);
+						//local_bb_size[obj_id].shrink_to_fit();
+					}
 
-						_maps_init.resize(fcount,false);
-						_maps_init.shrink_to_fit();
+					_maps_init.resize(fcount,false);
+					_maps_init.shrink_to_fit();
 
-						auto& _ucfg = local_ucfg[obj_id];
-						_ucfg.resize(fcount);
-					  _ucfg.shrink_to_fit();
+					auto& _ucfg = local_ucfg[obj_id];
+					_ucfg.resize(fcount);
+					_ucfg.shrink_to_fit();
 
 				}
-			
+
 				pthread_mutex_unlock(&flush_mutex);
 
 			}
@@ -329,34 +329,34 @@ class BBProfiler {
 				//cerr << "maps_initialized size; " << obj_id << " : " << maps_initialized[obj_id].size() << "\n";
 				if(!_maps_init[fid]){
 					pthread_mutex_lock(&flush_mutex);
-						//assert(read_metadata[obj_id]);
+					//assert(read_metadata[obj_id]);
 
-							auto bbcount = bb_count[obj_id][fid];
-							//cerr << "initialized for: " << BBlock(obj_id,fid,0) << "\t" << bbcount << "\n";
-							auto& _exec_count = bb_exec_count[obj_id][fid];
-							_exec_count.resize(bbcount,0);
-							_exec_count.shrink_to_fit();
-							auto& _fall_thrus = fall_thrus[obj_id][fid];
-							_fall_thrus.resize(bbcount);
-							_fall_thrus.shrink_to_fit();
-							auto& _calls = calls[obj_id][fid];
-							_calls.resize(bbcount);
-							_calls.shrink_to_fit();
-							if(do_affinity){
-								joint_freqs[obj_id].at(fid).resize(bbcount,std::make_pair(0,std::map<func_t,num_t>()));
-								//local_bb_size[obj_id].at(fid) = bb_size[obj_id].at(fid);
-							}
+					auto bbcount = bb_count[obj_id][fid];
+					//cerr << "initialized for: " << BBlock(obj_id,fid,0) << "\t" << bbcount << "\n";
+					auto& _exec_count = bb_exec_count[obj_id][fid];
+					_exec_count.resize(bbcount,0);
+					_exec_count.shrink_to_fit();
+					auto& _fall_thrus = fall_thrus[obj_id][fid];
+					_fall_thrus.resize(bbcount);
+					_fall_thrus.shrink_to_fit();
+					auto& _calls = calls[obj_id][fid];
+					_calls.resize(bbcount);
+					_calls.shrink_to_fit();
+					if(do_affinity){
+						joint_freqs[obj_id].at(fid).resize(bbcount,std::make_pair(0,std::map<func_t,num_t>()));
+						//local_bb_size[obj_id].at(fid) = bb_size[obj_id].at(fid);
+					}
 
-								local_ucfg[obj_id][fid] = ucfg[obj_id][fid];
+					local_ucfg[obj_id][fid] = ucfg[obj_id][fid];
 
-						_maps_init[fid] = true;
+					_maps_init[fid] = true;
 					pthread_mutex_unlock(&flush_mutex);
 				}
 				return true;
 			}else
 				return false;
-					
-				
+
+
 		}
 
 		inline void incCallCount(hash_t obj_id, func_t fid){
@@ -366,23 +366,23 @@ class BBProfiler {
 					res.first->second++;
 			}	
 		}
-	
+
 
 		inline void incExecCount(hash_t obj_id, func_t fid, bb_t bbid){
 			bb_exec_count[obj_id][fid][bbid]++;
 		}
 
-		
+
 
 		inline void incFallThru(hash_t obj_id, func_t fid, bb_t bbid){
-    	if(pred_valid && pred.get_obj_id()==obj_id && pred.get_fid()==fid && local_ucfg[obj_id][fid][pred.get_bbid()].size()>=2){
+			if(pred_valid && pred.get_obj_id()==obj_id && pred.get_fid()==fid && local_ucfg[obj_id][fid][pred.get_bbid()].size()>=2){
 				auto res = fall_thrus[obj_id][fid][pred.get_bbid()].emplace((bb_t)bbid,1);
 				if(!res.second)
 					res.first->second++;
 			}
 		}
 
- };
+};
 
 
 thread_local BBProfiler bb_profiler;
@@ -391,10 +391,10 @@ thread_local BBProfiler bb_profiler;
 
 
 PartialWindow::PartialWindow(BBlock rec){
-		owner = rec;
-		code_size = 0;
-		//bb_profiler.joint_freqs[rec.get_obj_id()].at(rec.get_fid()).at(rec.get_bbid()).first++;
-		//joint_freq_it = &bb_profiler.joint_freqs[rec.get_obj_id()].at(rec.get_fid()).at(rec.get_bbid()).second;
+	owner = rec;
+	code_size = 0;
+	//bb_profiler.joint_freqs[rec.get_obj_id()].at(rec.get_fid()).at(rec.get_bbid()).first++;
+	//joint_freq_it = &bb_profiler.joint_freqs[rec.get_obj_id()].at(rec.get_fid()).at(rec.get_bbid()).second;
 }
 
 
@@ -416,9 +416,6 @@ void initialize_affinity_data(){
 	//graph_buf.open (get_thread_versioned_filepath("graph"),std::ios::in);
 
 }
-
-
-
 
 
 void emit_code_metadata(){
@@ -451,27 +448,27 @@ extern "C" void affinityAtExitHandler(){
 }
 
 /*
-void print_trace(const list<PartialWindow> &tlist){
+	 void print_trace(const list<PartialWindow> &tlist){
 
-	debug_os << "---------------------------------------------\n";
-	debug_os << "trace size : " << trace_code_size << "\n";
-	unsigned total_code_size = 0;
-	for(auto pw: tlist){
-		debug_os << "sampled window: \t";
-		total_code_size += pw.code_size;
-		debug_os << "^^^^^^^^^  " << pw.owner << "\t" << pw.code_size << "\n >>>>>>>> ";
-		debug_os << pw.code_size;
-		for(auto b: pw.partial_list)
-			debug_os << b << "##";
+	 debug_os << "---------------------------------------------\n";
+	 debug_os << "trace size : " << trace_code_size << "\n";
+	 unsigned total_code_size = 0;
+	 for(auto pw: tlist){
+	 debug_os << "sampled window: \t";
+	 total_code_size += pw.code_size;
+	 debug_os << "^^^^^^^^^  " << pw.owner << "\t" << pw.code_size << "\n >>>>>>>> ";
+	 debug_os << pw.code_size;
+	 for(auto b: pw.partial_list)
+	 debug_os << b << "##";
 
-		debug_os << "\n";
-		debug_os.flush();
+	 debug_os << "\n";
+	 debug_os.flush();
 
-	}
-	debug_os << "---------------------------------------------\n\n\n";
-	debug_os.flush();
-}
-*/
+	 }
+	 debug_os << "---------------------------------------------\n\n\n";
+	 debug_os.flush();
+	 }
+ */
 
 
 
@@ -495,7 +492,7 @@ static void save_affinity_environment_variables(void) {
 		sampleRateLog = atoi(SampleRateEnvVar);
 	else
 		sampleRateLog = 8;
-		
+
 	sampleSize= RAND_MAX >> sampleRateLog;
 	sampleMask = sampleSize ^ RAND_MAX;
 
@@ -510,7 +507,7 @@ static void save_affinity_environment_variables(void) {
 
 	if((doProfiling = getenv("BBABC_DO_PROF"))!=NULL)
 		do_profile = (strcmp(doProfiling,"ON")==0);
-	
+
 }
 
 /* llvm_start_basic_block_tracing - This is the main entry point of the basic
@@ -523,7 +520,7 @@ extern "C" int set_func_count(uint64_t arg){
 		cerr << "using special hash object is invalid, use a different hash function\n";
 		exit(-1);
 	}
-	
+
 	auto obj_id = b.get_obj_id();
 	auto fid = b.get_fid();
 
@@ -608,13 +605,13 @@ extern "C" void record_bb_entry(uint64_t arg){
 		bb_profiler.pred_valid = false;
 		return;
 	}
-	
+
 	if(bb_profiler.destroying)
 		return;
-	
+
 	if(bb_profiler.locked)
 		return;
-	
+
 	bb_profiler.locked = true;
 
 
@@ -624,17 +621,17 @@ extern "C" void record_bb_entry(uint64_t arg){
 	auto bbid = b.get_bbid();
 
 
-	 	if(bb_profiler.initializeMap(obj_id,fid)){
-			bb_profiler.incExecCount(obj_id, fid, bbid); 
-			bb_profiler.incFallThru(obj_id,fid,bbid);
-			bb_profiler.pred = b;
+	if(bb_profiler.initializeMap(obj_id,fid)){
+		bb_profiler.incExecCount(obj_id, fid, bbid); 
+		bb_profiler.incFallThru(obj_id,fid,bbid);
+		bb_profiler.pred = b;
 		bb_profiler.pred_valid = true;
-			if(do_affinity)
-				bb_profiler.record_bb_exec(b);
-		}else
-			bb_profiler.pred_valid = false;
+		if(do_affinity)
+			bb_profiler.record_bb_exec(b);
+	}else
+		bb_profiler.pred_valid = false;
 
-		bb_profiler.locked = false;
+	bb_profiler.locked = false;
 
 }
 
@@ -656,36 +653,36 @@ extern "C" void  record_func_entry(uint64_t arg){
 	if(bb_profiler.locked)
 		return;
 
-	
-	
+
+
 	bb_profiler.locked = true;
 
 	BBlock b(arg);
 	auto obj_id = b.get_obj_id();
 
 
-		auto fid = b.get_fid();
-		auto bbid = b.get_bbid();
+	auto fid = b.get_fid();
+	auto bbid = b.get_bbid();
 
-			if(bb_profiler.initializeMap(obj_id,fid)){
-				bb_profiler.incExecCount(obj_id, fid, bbid); 
-				bb_profiler.incCallCount(obj_id,fid);
-				bb_profiler.pred = b;
-				bb_profiler.pred_valid = true;
-				if(do_affinity)
-					bb_profiler.record_bb_exec(b);
-			}else
-					bb_profiler.pred_valid = false;
-		bb_profiler.locked = false;
-	
+	if(bb_profiler.initializeMap(obj_id,fid)){
+		bb_profiler.incExecCount(obj_id, fid, bbid); 
+		bb_profiler.incCallCount(obj_id,fid);
+		bb_profiler.pred = b;
+		bb_profiler.pred_valid = true;
+		if(do_affinity)
+			bb_profiler.record_bb_exec(b);
+	}else
+		bb_profiler.pred_valid = false;
+	bb_profiler.locked = false;
+
 }
 
 bool initialized_first = false;
 
 extern "C" void register_object(const char * obj_str, func_t fid, short exer){
 	hash_t obj_id = (hash_t)std::hash<std::string>()(std::string(obj_str));
-  //if(exer==1 || true){
-  if(exer==1){
+	//if(exer==1 || true){
+	if(exer==1){
 		const char * _basename = basename((char*)obj_str);
 		affinity_basename = new char [strlen(_basename)+1];
 		strcpy(affinity_basename,_basename);
@@ -700,9 +697,9 @@ extern "C" void register_object(const char * obj_str, func_t fid, short exer){
 		func_names = new FuncNameMap[HASH_MAX];
 		bb_count = new BBCountMap[HASH_MAX];
 		bb_size = new BBSizeMap[HASH_MAX];
-  	cs_size = new CSSizeMap[HASH_MAX];
+		cs_size = new CSSizeMap[HASH_MAX];
 		ucfg = new UCFGMap[HASH_MAX];
-  	bb_cfg = new BBCFGMap[HASH_MAX];
+		bb_cfg = new BBCFGMap[HASH_MAX];
 		bb_return = new BBReturnMap[HASH_MAX];
 		read_metadata = new bool[HASH_MAX]();
 
@@ -730,7 +727,7 @@ extern "C" void register_object(const char * obj_str, func_t fid, short exer){
 	bb_return[obj_id].resize(fid,std::vector<bb_t>());
 	bb_return[obj_id].shrink_to_fit();
 
-	}
+}
 
 
 
@@ -797,7 +794,7 @@ extern "C" void release_mutex(uint16_t obj_id){
 	pthread_mutex_unlock(&flush_mutex);
 }
 extern "C" void set_bb_count_for_fid(uint64_t arg){
-  //cerr << "set bb count for fid: " << arg << "\n";
+	//cerr << "set bb count for fid: " << arg << "\n";
 	BBlock b(arg);
 	auto obj_id = b.get_obj_id();
 	auto fid = b.get_fid();
