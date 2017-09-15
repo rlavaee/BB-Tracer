@@ -8,3 +8,5 @@ For this runtime library to work, the program needs to be instrumented at three 
 * record_func_entry: at the entry of functions
 * record_callsite: after every callsite
 * record_bb_entry: at the entry of each basic block
+
+Every basic block is identified by a uint64_t: [16bit for DSO hash, 32bit for function id, 16bit for basic block id]
