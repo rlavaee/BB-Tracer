@@ -42,7 +42,7 @@
 
 pid_t _gettid( void )
 {
-	return syscall( SYS_gettid);
+  return syscall( SYS_gettid);
 }
 
 
@@ -55,15 +55,15 @@ const size_t nconsumers = 1;
 //namespace fs = std::experimental::filesystem;
 namespace fs {
 
-	bool create_directory(const std::string& filepath){
-		return (mkdir(filepath.c_str(),0777)==0);
-	}
+  bool create_directory(const std::string& filepath){
+    return (mkdir(filepath.c_str(),0777)==0);
+  }
 
-	bool exists(const std::string& filepath){
-	  ifstream f(filepath.c_str());
+  bool exists(const std::string& filepath){
+    ifstream f(filepath.c_str());
     return f.good();
-		
-	}
+    
+  }
 }
 long int timestamp;
 
@@ -75,7 +75,7 @@ const char * procSuffix = NULL;
 
 const char * version_str = ".bbabc";
 bool do_profile = false;
-	bool do_affinity = false;
+  bool do_affinity = false;
 bool do_proc_suffix = false;
 
 
@@ -84,13 +84,13 @@ wsize_t mws;
 unsigned max_code_size;
 
 class PartialWindow{
-	public:
+  public:
   unsigned code_size;
   list<BBlock> partial_list;
   BBlock owner;
-	std::map<func_t,num_t>* joint_freq_it;
+  std::map<func_t,num_t>* joint_freq_it;
 
-	PartialWindow(BBlock rec);
+  PartialWindow(BBlock rec);
 
   ~PartialWindow(){
     partial_list.clear();
@@ -140,9 +140,9 @@ std::string get_timestamped_filepath(const char* basename){
     filePath+=std::string(profilePath)+"/";
   }
 
-	//fprintf(stderr,"basename: %s\n",affinity_basename.c_str());
+  //fprintf(stderr,"basename: %s\n",affinity_basename.c_str());
 
-	filePath+=std::string(affinity_basename);
+  filePath+=std::string(affinity_basename);
 
   if(!fs::exists(filePath) && fs::create_directory(filePath)){
       //std::cerr << "Success in creating directory: " << filePath << "\n";
@@ -168,7 +168,7 @@ std::string get_timestamped_filepath(const char* basename){
         //std::cerr << "Success in creating directory: " << filePath << "\n";
      }
 
-	filePath += "/"+std::to_string(static_cast<long int>(time(NULL)));
+  filePath += "/"+std::to_string(static_cast<long int>(time(NULL)));
 
   if(!fs::exists(filePath) && fs::create_directory(filePath)){
       //std::cerr << "Success in creating directory: " << filePath << "\n";
@@ -182,15 +182,15 @@ std::string get_timestamped_filepath(const char* basename){
 
 
 std::string get_thread_versioned_filepath(const char* basename){
-	std::string filePath("");
+  std::string filePath("");
 
   if(profilePath!=NULL){
     filePath+=std::string(profilePath)+"/";
   }
 
-	filePath+=std::string(affinity_basename);
+  filePath+=std::string(affinity_basename);
 
-	cerr << "file path: " << filePath << "\t" << affinity_basename << "\n";
+  cerr << "file path: " << filePath << "\t" << affinity_basename << "\n";
 
   if(!fs::exists(filePath) && fs::create_directory(filePath)){
       //std::cerr << "Success in creating directory: " << filePath << "\n";
@@ -219,7 +219,7 @@ std::string get_thread_versioned_filepath(const char* basename){
 
   
 
-		 filePath+="/"+std::to_string(_gettid());
+     filePath+="/"+std::to_string(_gettid());
      if(!fs::exists(filePath) && fs::create_directory(filePath)){
         //std::cerr << "Success in creating directory: " << filePath << "\n";
      }
@@ -243,7 +243,7 @@ std::string get_process_versioned_filepath(const char* basename){
 
   filePath += std::string(affinity_basename);
 
-	cerr << "file path: " << filePath << "\t" << affinity_basename << "\n";
+  cerr << "file path: " << filePath << "\t" << affinity_basename << "\n";
 
   if(!fs::exists(filePath) && fs::create_directory(filePath)){
       //std::cerr << "Success in creating directory: " << filePath << "\n";
@@ -283,22 +283,22 @@ void emit_code_metadata();
 void emit_graphFile();
 
 template <class T>
-	Map<T> getMap(T *val){
-	Map<T> m;
-	for(unsigned obj_id=0; obj_id<HASH_MAX; ++obj_id){
-		if(read_metadata[obj_id])
-			m.insert(std::make_pair((hash_t)obj_id,std::move(val[obj_id])));
-	}
-	return m;
+  Map<T> getMap(T *val){
+  Map<T> m;
+  for(unsigned obj_id=0; obj_id<HASH_MAX; ++obj_id){
+    if(read_metadata[obj_id])
+      m.insert(std::make_pair((hash_t)obj_id,std::move(val[obj_id])));
+  }
+  return m;
 }
 
 template <class T>
-	Map<T> getMap(Vector<T> val, Vector<std::vector<bool>>& maps_initialized){
-	Map<T> m;
-	for(unsigned obj_id=0; obj_id<HASH_MAX; ++obj_id){
-		if(!maps_initialized[obj_id].empty())
-			m.insert(std::make_pair((hash_t)obj_id,std::move(val[obj_id])));
-	}
-	return m;
+  Map<T> getMap(Vector<T> val, Vector<std::vector<bool>>& maps_initialized){
+  Map<T> m;
+  for(unsigned obj_id=0; obj_id<HASH_MAX; ++obj_id){
+    if(!maps_initialized[obj_id].empty())
+      m.insert(std::make_pair((hash_t)obj_id,std::move(val[obj_id])));
+  }
+  return m;
 }
 
