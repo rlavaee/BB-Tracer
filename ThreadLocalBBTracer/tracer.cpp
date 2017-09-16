@@ -260,8 +260,6 @@ class BBProfiler {
 
 
 
-
-
 		BBProfiler(){
 			locked = true;
 			pred_valid = false;
